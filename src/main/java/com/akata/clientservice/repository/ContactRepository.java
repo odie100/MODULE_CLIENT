@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long> {
-    @Query("SELECT c FROM Contact c where c.user.id = ?1")
+    @Query("SELECT c FROM Contact c where c.client.id = ?1")
     List<Contact> findAllByIdUser(Long id);
 }
