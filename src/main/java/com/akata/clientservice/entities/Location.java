@@ -22,4 +22,6 @@ public class Location {
     String country;
     String address;
     String town;
+/*    @OneToMany(mappedBy = "location")
+    Set<Client> user;*/
 }

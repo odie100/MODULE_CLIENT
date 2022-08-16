@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/location")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class LocationController {
     @Autowired
     private LocationService locationService;
@@ -32,7 +31,7 @@ public class LocationController {
     }
 
     @PutMapping(path = "/{id}")
-    public LocationResponseDTO update(@PathVariable("id") Long id, LocationRequestDTO locationRequestDTO){
+    public int update(@PathVariable("id") Long id, LocationRequestDTO locationRequestDTO){
         return this.locationService.update(id, locationRequestDTO);
     }
 

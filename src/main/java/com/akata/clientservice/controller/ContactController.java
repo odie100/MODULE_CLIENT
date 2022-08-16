@@ -2,6 +2,7 @@ package com.akata.clientservice.controller;
 
 import com.akata.clientservice.dto.ContactRequestDTO;
 import com.akata.clientservice.dto.ContactResponseDTO;
+import com.akata.clientservice.model.ContactModel;
 import com.akata.clientservice.services.interfaces.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/contact")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ContactController {
     @Autowired
     private ContactService contactService;
@@ -36,8 +36,8 @@ public class ContactController {
     }
 
     @PutMapping(path = "/{id}")
-    public ContactResponseDTO update(@PathVariable("id") Long id, @RequestBody ContactRequestDTO contactRequestDTO){
-        return this.contactService.update(id, contactRequestDTO);
+    public int update(@PathVariable("id") Long id, @RequestBody ContactModel contactModel){
+        return this.contactService.update(id, contactModel);
     }
 
     @GetMapping(path = "/filter/{id}")

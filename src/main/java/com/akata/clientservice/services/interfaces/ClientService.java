@@ -2,14 +2,18 @@ package com.akata.clientservice.services.interfaces;
 
 import com.akata.clientservice.dto.ClientRequestDTO;
 import com.akata.clientservice.dto.ClientResponseDTO;
+import com.akata.clientservice.model.ClientModel;
+import com.akata.clientservice.model.RegistrationClientModel;
 
 import java.util.List;
 
 public interface ClientService {
     ClientResponseDTO save(ClientRequestDTO clientRequestDTO);
     ClientResponseDTO getClient(Long id);
-    ClientResponseDTO update(Long id, ClientRequestDTO clientRequestDTO);
+    int update(Long id, ClientModel clientModel);
     boolean delete(Long id);
     List<ClientResponseDTO> getAllClients();
     ClientResponseDTO signIn(String password, String email);
+
+    ClientResponseDTO register(RegistrationClientModel registrationClientModel);
 }

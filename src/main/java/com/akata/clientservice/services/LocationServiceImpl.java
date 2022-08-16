@@ -34,10 +34,9 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public LocationResponseDTO update(Long id, LocationRequestDTO locationRequestDTO) {
-        Location location = this.locationMapper.locationRequestDTOLocation(locationRequestDTO);
-        location.setId(id);
-        return this.locationMapper.locationToLocationResponseDTO(this.locationRepository.save(location));
+    public int update(Long id, LocationRequestDTO locationRequestDTO) {
+       return this.locationRepository.update(locationRequestDTO.getAddress(), locationRequestDTO.getCountry(),
+               locationRequestDTO.getTown(), id);
     }
 
     @Override

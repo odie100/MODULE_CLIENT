@@ -2,6 +2,7 @@ package com.akata.clientservice.controller;
 
 import com.akata.clientservice.dto.ClientRequestDTO;
 import com.akata.clientservice.dto.ClientResponseDTO;
+import com.akata.clientservice.model.ClientModel;
 import com.akata.clientservice.services.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -9,8 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/client")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequestMapping(path = "/api/client")   
 public class ClientController {
     @Autowired
     private ClientService clientService;
@@ -31,7 +31,7 @@ public class ClientController {
     }
 
     @PutMapping(path = "/update/{id}")
-    public ClientResponseDTO update(@PathVariable("id") Long id, @RequestBody ClientRequestDTO clientRequestDTO){
+    public int update(@PathVariable("id") Long id, @RequestBody ClientModel clientRequestDTO){
         return clientService.update(id,clientRequestDTO);
     }
 

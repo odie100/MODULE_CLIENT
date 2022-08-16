@@ -2,6 +2,7 @@ package com.akata.clientservice.services.interfaces;
 
 import com.akata.clientservice.dto.ContactRequestDTO;
 import com.akata.clientservice.dto.ContactResponseDTO;
+import com.akata.clientservice.model.ContactModel;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface ContactService {
 
     ContactResponseDTO getContact(Long id);
 
-    ContactResponseDTO update(Long id, ContactRequestDTO contactRequestDTO);
+    int update(Long id, ContactModel contactModel);
 
     boolean delete(Long id);
 

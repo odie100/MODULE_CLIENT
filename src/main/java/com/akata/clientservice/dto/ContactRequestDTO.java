@@ -11,5 +11,5 @@ import lombok.Setter;
 public class ContactRequestDTO {
     String type;
     String value;
-    Client user;
+    Client client;
 }
