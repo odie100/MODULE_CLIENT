@@ -18,4 +18,6 @@ public interface ContactService {
     List<ContactResponseDTO> getAllContact();
 
     List<ContactResponseDTO> getContactByIdUser(Long id);
+
+    ContactResponseDTO findByUserAndType(String type, Long id);
 }
