@@ -14,6 +14,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Client c SET c.username = ?1, c.name=?2, c.type=?3, c.description=?4 where c.id=?5")
-    int update(String username, String name, String type, String description, Long id);
+    @Query("UPDATE Client c SET c.username = ?1, c.name=?2, c.type=?3, c.description=?4, c.photo = ?5 where c.id=?6")
+    int update(String username, String name, String type, String description, String photo, Long id);
 }

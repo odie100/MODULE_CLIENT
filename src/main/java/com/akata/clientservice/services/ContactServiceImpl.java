@@ -88,4 +88,9 @@ public class ContactServiceImpl implements ContactService {
     public ContactResponseDTO findByUserAndType(String type, Long id) {
         return this.contactMapper.contactToContactResponseDTO(this.contactRepository.findExisting(type, id));
     }
+
+    @Override
+    public ContactResponseDTO getClientContact(Long id, String type) {
+        return this.contactMapper.contactToContactResponseDTO(this.contactRepository.findContactByClientIdAndType(id, type));
+    }
 }

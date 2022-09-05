@@ -14,7 +14,9 @@ import com.akata.clientservice.services.interfaces.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +38,9 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private LocationMapper locationMapper;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @Override
     public ClientResponseDTO save(ClientRequestDTO clientRequestDTO) {
         clientRequestDTO.setCreation(LocalDate.now());
@@ -46,7 +51,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientResponseDTO getClient(Long id) {
         Client client = clientRepository.findById(id).get();
-        return clientMapper.clientToClientResponseDTO(client);
+        ClientResponseDTO clientResponseDTO = this.clientMapper.clientToClientResponseDTO(client);
+        clientResponseDTO.setEmail(this.contactService.findByUserAndType("email",clientResponseDTO.getId()).getValue());
+        clientResponseDTO.setPhone(this.contactService.findByUserAndType("tel",clientResponseDTO.getId()).getValue());
+
+        return clientResponseDTO;
     }
 
 
@@ -63,7 +72,7 @@ public class ClientServiceImpl implements ClientService {
         this.contactService.update(id, email_model);
         this.contactService.update(id, tel_model);
 
-        return this.clientRepository.update(cr.getUsername(), cr.getName(), cr.getType(), cr.getDescription(), id);
+        return this.clientRepository.update(cr.getUsername(), cr.getName(), cr.getType(), cr.getDescription(), cr.getPhoto(), id);
     }
 
     @Override
@@ -78,8 +87,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public List<ClientResponseDTO> getAllClients() {
-        return clientRepository.findAll().stream()
-                .map(client -> clientMapper.clientToClientResponseDTO(client)).collect(Collectors.toList());
+        List<Client> clients = clientRepository.findAll();
+        List<ClientResponseDTO> clientResponseDTOS = clients.stream().map(client -> this.clientMapper.clientToClientResponseDTO(client))
+                .collect(Collectors.toList());
+        for(ClientResponseDTO clientResponseDTO:clientResponseDTOS){
+            clientResponseDTO.setEmail(this.contactService.getClientContact(clientResponseDTO.getId(), "email").getValue());
+            clientResponseDTO.setPhone(this.contactService.getClientContact(clientResponseDTO.getId(), "tel").getValue());
+        }
+        return clientResponseDTOS;
     }
 
     @Override
@@ -130,5 +145,10 @@ public class ClientServiceImpl implements ClientService {
         }
 
         return client_saved;
+    }
+
+    @Override
+    public String uploadPhoto(MultipartFile file) throws IOException {
+        return this.fileStorageService.saveImage(file);
     }
 }

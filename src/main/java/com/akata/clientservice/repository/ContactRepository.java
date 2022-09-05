@@ -26,4 +26,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     @Query("SELECT c FROM Contact c WHERE c.type = ?1 and c.client.id = ?2")
     Contact findExisting(String type, Long id);
+
+    Contact findContactByClientIdAndType(Long id, String type);
 }

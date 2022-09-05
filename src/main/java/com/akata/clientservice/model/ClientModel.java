@@ -15,4 +15,5 @@ public class ClientModel {
     String description;
     String email;
     String tel;
+    String photo;
 }

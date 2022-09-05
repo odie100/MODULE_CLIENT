@@ -24,4 +24,5 @@ public class Client {
     @ManyToOne()
     @JoinColumn(name = "location_id")
     Location location;
+    private String photo;
 }

@@ -18,5 +18,6 @@ public class RegistrationClientModel {
     String description;
     String email;
     String tel;
+    String photo;
     Long id_location;
 }

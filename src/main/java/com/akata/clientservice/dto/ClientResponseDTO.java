@@ -17,5 +17,8 @@ public class ClientResponseDTO {
     private String name;
     private String type;
     private String description;
+    private String photo;
+    private String email;
+    private String phone;
     private LocalDate creation;
 }
