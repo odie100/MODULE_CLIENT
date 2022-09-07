@@ -18,7 +18,7 @@ public class Client {
     private String password;
     private String name;
     private String type;
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String description;
     private LocalDate creation;
     @ManyToOne()
