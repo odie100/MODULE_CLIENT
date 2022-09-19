@@ -99,8 +99,12 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponseDTO signIn(String password, String email) {
-        Client client = this.clientRepository.login(email, password);
-        System.out.println("Client returned: "+client);
+        Client client = null;
+        try {
+            client = this.clientRepository.login(email, password);
+        }catch (DataAccessException e){
+            throw new RuntimeException("User not found");
+        }
         ClientResponseDTO clientResponseDTO = null;
         if(client != null){
             clientResponseDTO = this.clientMapper.clientToClientResponseDTO(client);
