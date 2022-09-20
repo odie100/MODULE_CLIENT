@@ -4,6 +4,7 @@ import com.akata.clientservice.dto.ClientRequestDTO;
 import com.akata.clientservice.dto.ClientResponseDTO;
 import com.akata.clientservice.model.ClientModel;
 import com.akata.clientservice.model.RegistrationClientModel;
+import com.akata.clientservice.projections.ClientLightProjection;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ public interface ClientService {
     int update(Long id, ClientModel clientModel);
     boolean delete(Long id);
     List<ClientResponseDTO> getAllClients();
-    ClientResponseDTO signIn(String password, String email);
+    ClientLightProjection signIn(String password, String email);
     ClientResponseDTO register(RegistrationClientModel registrationClientModel);
     String uploadPhoto(MultipartFile file) throws IOException;
 }

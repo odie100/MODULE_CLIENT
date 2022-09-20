@@ -1,15 +1,13 @@
 package com.akata.clientservice.dto;
 
 import com.akata.clientservice.entities.Location;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@ToString
 public class ClientResponseDTO {
     private Long id;
     private String username;

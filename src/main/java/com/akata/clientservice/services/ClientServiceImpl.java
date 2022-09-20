@@ -2,11 +2,13 @@ package com.akata.clientservice.services;
 
 import com.akata.clientservice.dto.*;
 import com.akata.clientservice.entities.Client;
+import com.akata.clientservice.entities.Contact;
 import com.akata.clientservice.mapper.ClientMapper;
 import com.akata.clientservice.mapper.LocationMapper;
 import com.akata.clientservice.model.ClientModel;
 import com.akata.clientservice.model.ContactModel;
 import com.akata.clientservice.model.RegistrationClientModel;
+import com.akata.clientservice.projections.ClientLightProjection;
 import com.akata.clientservice.repository.ClientRepository;
 import com.akata.clientservice.services.interfaces.ClientService;
 import com.akata.clientservice.services.interfaces.ContactService;
@@ -50,12 +52,39 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponseDTO getClient(Long id) {
-        Client client = clientRepository.findById(id).get();
-        ClientResponseDTO clientResponseDTO = this.clientMapper.clientToClientResponseDTO(client);
-        clientResponseDTO.setEmail(this.contactService.findByUserAndType("email",clientResponseDTO.getId()).getValue());
-        clientResponseDTO.setPhone(this.contactService.findByUserAndType("tel",clientResponseDTO.getId()).getValue());
+        Client client;
+        ClientResponseDTO clientResponseDTO = new ClientResponseDTO();
 
-        return clientResponseDTO;
+        ContactResponseDTO email = new ContactResponseDTO();
+        ContactResponseDTO phone = new ContactResponseDTO();
+        try {
+            client = clientRepository.findById(id).get();
+            clientResponseDTO = this.clientMapper.clientToClientResponseDTO(client);
+            System.out.println("response dto: "+ clientResponseDTO);
+            System.out.println("client: "+client );
+            try {
+                email = this.contactService.findByUserAndType("email",clientResponseDTO.getId());
+                phone= this.contactService.findByUserAndType("tel",clientResponseDTO.getId());
+            }catch (DataAccessException e){
+                System.out.println("Can't find any contact matche to client: "+client);
+            }
+            if(email != null){
+                clientResponseDTO.setEmail(email.getValue());
+            }else{
+                clientResponseDTO.setEmail("null");
+            }
+
+            if(phone != null){
+                clientResponseDTO.setPhone(phone.getValue());
+            }else {
+                clientResponseDTO.setPhone("null");
+            }
+
+
+            return clientResponseDTO;
+        }catch (DataAccessException e){
+            return clientResponseDTO;
+        }
     }
 
 
@@ -98,18 +127,19 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientResponseDTO signIn(String password, String email) {
-        Client client = null;
+    public ClientLightProjection signIn(String password, String email) {
+        Long id = null;
         try {
-            client = this.clientRepository.login(email, password);
+            id = this.clientRepository.login(email, password);
         }catch (DataAccessException e){
             throw new RuntimeException("User not found");
         }
-        ClientResponseDTO clientResponseDTO = null;
-        if(client != null){
-            clientResponseDTO = this.clientMapper.clientToClientResponseDTO(client);
+        ClientLightProjection clientProjection = new ClientLightProjection();
+        if(id != null){
+            clientProjection.setId(id);
+            clientProjection.setType("client");
         }
-        return clientResponseDTO;
+        return clientProjection;
     }
 
     @Override

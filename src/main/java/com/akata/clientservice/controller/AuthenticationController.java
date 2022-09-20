@@ -5,6 +5,7 @@ import com.akata.clientservice.mapper.ClientMapper;
 import com.akata.clientservice.mapper.LocationMapper;
 import com.akata.clientservice.model.RegistrationClientModel;
 import com.akata.clientservice.model.SignInModel;
+import com.akata.clientservice.projections.ClientLightProjection;
 import com.akata.clientservice.services.interfaces.ClientService;
 import com.akata.clientservice.services.interfaces.ContactService;
 import com.akata.clientservice.services.interfaces.LocationService;
@@ -35,7 +36,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/signin/client")
-    public ClientResponseDTO signIn(@RequestBody SignInModel signInModel){
+    public ClientLightProjection signIn(@RequestBody SignInModel signInModel){
         return this.clientService.signIn(signInModel.getPassword(), signInModel.getEmail());
     }
 }

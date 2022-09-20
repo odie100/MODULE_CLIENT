@@ -23,7 +23,7 @@ public class FileStorageService {
 
     public String saveImage(MultipartFile file) throws IOException {
         String file_name = StringUtils.cleanPath(file.getOriginalFilename());
-        Path upload_path = Paths.get(upload_dir);
+        Path upload_path = Paths.get(upload_dir+"/images");
         if(!Files.exists(upload_path)){
             Files.createDirectories(upload_path);
         }
@@ -37,7 +37,7 @@ public class FileStorageService {
     }
 
     public Resource loadFile(String file_name) throws IOException {
-        Path upload_path = Paths.get(upload_dir);
+        Path upload_path = Paths.get(upload_dir+"/images");
         Path file_path = upload_path.resolve(file_name).normalize();
         Resource resource = new UrlResource(file_path.toUri());
         if(resource.exists()){
