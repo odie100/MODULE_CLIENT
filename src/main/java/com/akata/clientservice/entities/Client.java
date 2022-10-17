@@ -21,6 +21,7 @@ public class Client {
     @Lob
     private String description;
     private LocalDate creation;
+    private String activated;
     @ManyToOne()
     @JoinColumn(name = "location_id")
     Location location;

@@ -14,6 +14,7 @@ public class ClientRequestDTO {
     private Location location;
     private String type;
     private String name;
+    private String activated;
     private String description;
     private LocalDate creation;
 }

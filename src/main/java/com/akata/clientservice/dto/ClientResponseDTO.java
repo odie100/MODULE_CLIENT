@@ -19,4 +19,5 @@ public class ClientResponseDTO {
     private String email;
     private String phone;
     private LocalDate creation;
+    private String activated;
 }

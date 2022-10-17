@@ -12,6 +12,8 @@ import com.akata.clientservice.services.interfaces.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+
 @RestController
 @RequestMapping(path = "/api/authentication")
 public class AuthenticationController {
@@ -31,7 +33,7 @@ public class AuthenticationController {
     private ClientMapper clientMapper;
 
     @PostMapping(path = "/register/client")
-    public ClientResponseDTO register(@RequestBody RegistrationClientModel clientModel){
+    public ClientResponseDTO register(@RequestBody RegistrationClientModel clientModel) throws MessagingException {
         return this.clientService.register(clientModel);
     }
 

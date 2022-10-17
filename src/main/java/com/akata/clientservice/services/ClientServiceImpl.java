@@ -2,25 +2,34 @@ package com.akata.clientservice.services;
 
 import com.akata.clientservice.dto.*;
 import com.akata.clientservice.entities.Client;
-import com.akata.clientservice.entities.Contact;
+import com.akata.clientservice.entities.ValidationCode;
 import com.akata.clientservice.mapper.ClientMapper;
 import com.akata.clientservice.mapper.LocationMapper;
-import com.akata.clientservice.model.ClientModel;
-import com.akata.clientservice.model.ContactModel;
-import com.akata.clientservice.model.RegistrationClientModel;
+import com.akata.clientservice.model.*;
 import com.akata.clientservice.projections.ClientLightProjection;
 import com.akata.clientservice.repository.ClientRepository;
+import com.akata.clientservice.repository.ValidationRepository;
 import com.akata.clientservice.services.interfaces.ClientService;
 import com.akata.clientservice.services.interfaces.ContactService;
 import com.akata.clientservice.services.interfaces.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +51,20 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private ValidationRepository validationRepository;
+
+    @Autowired
+    private final SpringTemplateEngine templateEngine;
+
+    @Autowired
+    private final JavaMailSender emailSender;
+
+    public ClientServiceImpl(JavaMailSender emailSender, SpringTemplateEngine templateEngine) {
+        this.emailSender = emailSender;
+        this.templateEngine = templateEngine;
+    }
 
     @Override
     public ClientResponseDTO save(ClientRequestDTO clientRequestDTO) {
@@ -143,21 +166,22 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientResponseDTO register(RegistrationClientModel registrationClientModel) {
+    public ClientResponseDTO register(RegistrationClientModel registrationClientModel) throws MessagingException {
         //Step 1:
         LocationRequestDTO locationRequestDTO = new LocationRequestDTO();
-        locationRequestDTO.setCountry(registrationClientModel.getCountry());
-        locationRequestDTO.setTown(registrationClientModel.getTown());
-        locationRequestDTO.setAddress(registrationClientModel.getAddress());
+        locationRequestDTO.setCountry("vide");
+        locationRequestDTO.setTown("vide");
+        locationRequestDTO.setAddress("vide");
         LocationResponseDTO location_saved = this.locationService.save(locationRequestDTO);
         //Step 2:
         ClientRequestDTO clientRequestDTO = new ClientRequestDTO();
-        clientRequestDTO.setDescription(registrationClientModel.getDescription());
+        clientRequestDTO.setDescription("vide");
         clientRequestDTO.setLocation(this.locationMapper.locationResponseToLocation(location_saved));
         clientRequestDTO.setPassword(registrationClientModel.getPassword());
         clientRequestDTO.setUsername(registrationClientModel.getUsername());
-        clientRequestDTO.setType(registrationClientModel.getType());
-        clientRequestDTO.setName(registrationClientModel.getName());
+        clientRequestDTO.setType("vide");
+        clientRequestDTO.setName("vide");
+        clientRequestDTO.setActivated("false");
 
         ClientResponseDTO client_saved = save(clientRequestDTO);
         //last Step:
@@ -170,12 +194,44 @@ public class ClientServiceImpl implements ClientService {
             this.contactService.save(email_contact);
         }
 
-        if(!registrationClientModel.getTel().isEmpty()){
-            ContactRequestDTO tel_contact = new ContactRequestDTO();
-            tel_contact.setClient(this.clientMapper.clientResponseDTOClient(client_saved));
-            tel_contact.setType("tel");
-            tel_contact.setValue(registrationClientModel.getTel());
-            this.contactService.save(tel_contact);
+        //Send code for verification
+        int min = 1000;
+        int max = 9999;
+        int code_validation = (int) Math.floor(Math.random()*(max-min+1)+min);
+
+        this.validationRepository.save(new ValidationCode(null, client_saved.getId(), code_validation));
+
+        String from = "andriampeno.odilon@gmail.com";
+        String subject = "Activation de votre compte sur Do++";
+        String to = registrationClientModel.getEmail();
+        String content = "Votre code de validation est: "+code_validation;
+
+        ValidationModel validationModel = new ValidationModel();
+        validationModel.setTo(to);
+        validationModel.setText(content);
+        validationModel.setFrom(from);
+        validationModel.setSubject(subject);
+        validationModel.setTemplate("");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("name", registrationClientModel.getUsername());
+        properties.put("message", content);
+        validationModel.setProperties(properties);
+
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+        Context context = new Context();
+        context.setVariables(validationModel.getProperties());
+        helper.setFrom(validationModel.getFrom());
+        helper.setTo(validationModel.getTo());
+        helper.setSubject(validationModel.getSubject());
+        String html = templateEngine.process("email-validation-template.html", context);
+        helper.setText(html, true);
+
+        try {
+            emailSender.send(message);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         return client_saved;
@@ -184,5 +240,25 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public String uploadPhoto(MultipartFile file) throws IOException {
         return this.fileStorageService.saveImage(file);
+    }
+
+    @Override
+    public boolean activate(Long id_user, ActivationModel code) {
+        ValidationCode validationCode = this.validationRepository.getByIdUser(id_user);
+        if(Objects.equals(validationCode.getCode_validation(), code.getCode())){
+            this.clientRepository.activate(id_user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean updateDescription(String description, Long id) {
+        try {
+            this.clientRepository.updateDescription(description, id);
+            return true;
+        }catch (DataAccessException e){
+            return false;
+        }
     }
 }

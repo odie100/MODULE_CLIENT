@@ -8,16 +8,7 @@ import lombok.Setter;
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 public class RegistrationClientModel {
-    String name;
-    String country;
-    String address;
-    String town;
     String username;
     String password;
-    String type;
-    String description;
     String email;
-    String tel;
-    String photo;
-    Long id_location;
 }

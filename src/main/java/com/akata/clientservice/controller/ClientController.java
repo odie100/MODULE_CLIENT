@@ -2,7 +2,9 @@ package com.akata.clientservice.controller;
 
 import com.akata.clientservice.dto.ClientRequestDTO;
 import com.akata.clientservice.dto.ClientResponseDTO;
+import com.akata.clientservice.model.ActivationModel;
 import com.akata.clientservice.model.ClientModel;
+import com.akata.clientservice.model.UniqueStrModel;
 import com.akata.clientservice.services.FileStorageService;
 import com.akata.clientservice.services.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +58,15 @@ public class ClientController {
     @PostMapping(path = "/upload")
     public String uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
         return this.clientService.uploadPhoto(file);
+    }
+
+    @PostMapping(path = "/activate/{id_user}")
+    public boolean activate(@PathVariable("id_user") Long id_user, @RequestBody ActivationModel code){
+        return this.clientService.activate(id_user, code);
+    }
+
+    @PutMapping(path = "/updateDescription/{id}")
+    public boolean updateDescription(@PathVariable("id") Long id, @RequestBody UniqueStrModel description){
+        return this.clientService.updateDescription(description.getValue(), id);
     }
 }
